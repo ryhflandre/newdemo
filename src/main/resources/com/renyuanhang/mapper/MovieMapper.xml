@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.renyuanhang.mapper.MovieDao">
+	<select id="list" parameterType="map" resultType="com.renyuanhang.entity.Movie">
+		select m.mid,m.mname,m.mabout,m.mleader,m.mdate,GROUP_CONCAT(l.lname) lnames 
+		from movie m,list l,mlist t
+		<where>
+			m.mid=t.mid and l.lid=t.lid
+			<if test="mname!=null and mname!=''">
+				and mname like concat("%",#{mname},"%")
+			</if>
+			group by m.mname
+		</where>
+	</select>
+	<insert id="add" parameterType="map">
+		insert into movie(mname,mabout,mleader,mdate) values(#{mname},#{mabout},#{mleader},#{mdate})
+		<selectKey resultType="int" keyColumn="mid" keyProperty="mid">
+			select last_insert_id() as mid
+		</selectKey>
+	</insert>
+	<insert id="addm" parameterType="map">
+		{
+			call addmlist(#{mid,mode=IN,jdbcType=INTEGER},#{lid,mode=IN,jdbcType=INTEGER})
+		}
+	</insert>
+<!-- 	<delete id="dels">
+		delete from movie where mid in
+		<foreach collection="array" item="mid" open="(" close=")" separator=",">
+			#{mid}
+		</foreach>
+	</delete>
+	<delete id="dels">
+		delete from mlist where mid in
+		<foreach collection="array" item="mid" open="(" close=")" separator=",">
+			#{mid}
+		</foreach>
+	</delete> -->
+</mapper>
